@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   # 生产环境服务
   study-abroad-app:
