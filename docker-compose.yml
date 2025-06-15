@@ -1,0 +1,29 @@
+version: '3.8'
+
+services:
+  # 生产环境服务
+  study-abroad-app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "80:80"
+    restart: unless-stopped
+    container_name: study-abroad-app-prod
+
+  # 开发环境服务（可选）
+  study-abroad-app-dev:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    ports:
+      - "3000:3000"
+    volumes:
+      - .:/app
+      - /app/node_modules
+    environment:
+      - CHOKIDAR_USEPOLLING=true
+    restart: unless-stopped
+    container_name: study-abroad-app-dev
+    profiles:
+      - dev
