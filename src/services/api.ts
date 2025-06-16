@@ -1,4 +1,4 @@
-import { UserFormData, StreamData, ApiResponse } from '../types';
+import { UserFormData, StreamData, ApiResponse, UserInfo, TargetInstitution, GenerationConfig } from '../types';
 
 // API基础配置
 const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:8000/api';
@@ -39,14 +39,16 @@ class ApiClient {
     }
   }
 
-  // 生成文书 - 流式输出
+  // 生成文书 - 流式输出（对齐API）
   async generateDocument(
-    formData: UserFormData,
+    userInfo: UserInfo,
     documentType: string,
-    onChunk: (data: StreamData) => void
+    targetInstitution: TargetInstitution,
+    onChunk: (data: StreamData) => void,
+    generationConfig?: GenerationConfig,
+    stream: boolean = true
   ): Promise<void> {
-    const url = `${this.baseURL}/generate/stream`;
-    
+    const url = `${this.baseURL}/v1/documents/generate`;
     try {
       const response = await fetch(url, {
         method: 'POST',
@@ -54,8 +56,11 @@ class ApiClient {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          formData,
-          documentType,
+          user_info: userInfo,
+          document_type: documentType,
+          target_institution: targetInstitution,
+          generation_config: generationConfig,
+          stream: stream
         }),
       });
 
@@ -73,9 +78,7 @@ class ApiClient {
 
       while (true) {
         const { done, value } = await reader.read();
-        
         if (done) {
-          // 处理最后的数据
           if (buffer.trim()) {
             try {
               const data = JSON.parse(buffer);
@@ -86,21 +89,17 @@ class ApiClient {
           }
           break;
         }
-
         buffer += decoder.decode(value, { stream: true });
         const lines = buffer.split('\n');
         buffer = lines.pop() || '';
-
         for (const line of lines) {
           if (line.trim()) {
             try {
-              // 处理SSE格式的数据
               const cleanLine = line.replace(/^data: /, '');
               if (cleanLine === '[DONE]') {
                 onChunk({ content: '', isComplete: true });
                 return;
               }
-              
               const data = JSON.parse(cleanLine);
               onChunk(data);
             } catch (e) {

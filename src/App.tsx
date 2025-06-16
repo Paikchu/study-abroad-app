@@ -104,20 +104,37 @@ const App: React.FC = () => {
     // 验证表单
     const validationErrors = validateForm(formData);
     setErrors(validationErrors);
-    
     if (hasFormErrors(validationErrors)) {
       alert('请先完善表单信息');
       return;
     }
-
-    // 重置状态
     setGenerationStatus('generating');
     setIsStreaming(true);
     setGeneratedContent('');
     setConnectionError('');
-
+    // 组装API参数
+    const userInfo = {
+      background: `${formData.currentEducation}，${formData.institution}，${formData.major}，GPA: ${formData.gpa}，毕业时间: ${formData.graduationDate}`,
+      achievements: formData.awards ? formData.awards.split(/[,，;；\n]/).map(s => s.trim()).filter(Boolean) : [],
+      goals: formData.careerGoals,
+      extracurricular_activities: [
+        formData.workExperience,
+        formData.researchExperience,
+        formData.volunteerExperience
+      ].filter(Boolean)
+    };
+    const targetInstitution = {
+      name: formData.targetUniversity,
+      program: formData.targetMajor,
+      department: undefined
+    };
     try {
-      await generateDocument(formData, documentType, handleStreamData);
+      await generateDocument(
+        userInfo,
+        documentType,
+        targetInstitution,
+        handleStreamData
+      );
     } catch (error) {
       console.error('生成文档失败:', error);
       setGenerationStatus('error');

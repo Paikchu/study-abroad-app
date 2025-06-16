@@ -287,7 +287,7 @@ const UserForm: React.FC<UserFormProps> = ({
           {activeSection === 'statement' && (
             <div className="space-y-4">
               <h3 className="text-lg font-semibold text-gray-900 mb-4">个人陈述相关</h3>
-              {renderTextarea('careerGoals', '职业目标', '请描述您的职业目标和规划...', true, 6)}
+              {renderTextarea('careerGoals', '职业目标（API: goals）', '请描述您的职业目标和规划...', true, 6)}
               {renderTextarea('whyThisMajor', '选择专业的原因', '请说明为什么选择这个专业...', true, 6)}
               {renderTextarea('whyThisUniversity', '选择大学的原因', '请说明为什么选择这所大学...', true, 6)}
               {renderTextarea('personalChallenges', '个人挑战与成长', '请描述您面临的挑战和成长经历...', false, 6)}
