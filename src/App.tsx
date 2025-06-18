@@ -45,7 +45,7 @@ const App: React.FC = () => {
   const [generationStatus, setGenerationStatus] = useState<GenerationStatus>('idle');
   const [isStreaming, setIsStreaming] = useState<boolean>(false);
   const [errors, setErrors] = useState<FormErrors>({});
-  const [documentType] = useState<string>('personal-statement');
+  const [documentType] = useState<string>('personal_statement');
   const [connectionError, setConnectionError] = useState<string>('');
 
   // 从localStorage加载数据
